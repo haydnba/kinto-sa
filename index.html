@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- <hr /> -->
+    <header>
+      <h1>HBA Snippet Archive</h1>
+    </header>
+    <main>
+      <!-- <hr />
+      <nav>
+        <ul>
+          <li><a href="new_snippet.html">Add a snippet</a></li>
+          <li><a href="snippet_list.html">Browse snippets</a></li>
+          <li><a href="web_search.html">Query the web</a></li>
+          <li><p>Search the Snippet Archive: <input type="text" />
+            <button>Search</button>
+          </p></li>
+        </ul>
+      </nav>
+      <hr /> -->
+      <!-- <section>
+        <p>Use the search box here to query the web... Use bangs (!) etc.</p>
+        <p>Query: <input type="text" />
+          <button>Submit</button>
+        </p>
+      </section> -->
+      <section>
+        <!-- <p>Copy and paste your code snippet(s) here. You may add fields for a
+          longer description, title, tags, source (URI), and collection etc.</p> -->
+        <form name="new_snippet_form">
+          <fieldset>
+            <legend>New Snippet</legend>
+            <p>Collection: <input type="text" id="new_collection" name="new_collection" /></p>
+            <select id="collection" name="collection">
+                <option value="">------------</option>
+            </select>
+            <p>Snippet: <input type="text" id="snippet" name="snippet" required /></p>
+            <p>Source: <input type="text" id="source" name="source" /></p>
+            <p>Description: <textarea id="description" name="description"></textarea></p>
+            <p>Visible: <input type="checkbox" id="status" name="status" value="visible" checked/></p>
+            <p><button type="submit">Add Snippet</button></p>
+          </fieldset>
+        <form>
+      </section>
+      <!-- <section>
+        <p>Recent Snippets</p>
+      </section> -->
+    </main>
+    <!-- <hr />
+    <footer>
+      <p>Some basic info to go here...</p>
+    </footer> -->
+    <script type="text/javascript" src="archive.js"></script>
+  </body>
+</html>
