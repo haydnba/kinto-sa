@@ -6,7 +6,8 @@ function main() {
 
   // Kinto bucket/collection.
   var bucket = "default";
-  // var url = `${server}/buckets/${bucket}/collections/${collection}/records`;
+  var base_url = `${server}/buckets/${bucket}/collections`;
+  // var records_url = `/${collection}/records`;
 
   // Resuable HTTP headers.
   var headers = {
@@ -15,34 +16,79 @@ function main() {
     "Authorization": authorization,
   };
 
-  // Get records from server on load.
-  // fetch(url, {
-  //   method: "GET", headers: headers
-  // }).then(function(response) {
-  //   return response.json();
-  // }).then(function(data) {
-  //   console.log(data);
-  // }).catch(function() {
-  //   console.log("Booo");
-  // });
+  // HTML Entities:
+  var form = document.forms[0];
+  var section = document.getElementById("recent_snippets");
 
-  // Populate collection options in new snippet form.
-  var url = `${server}/buckets/${bucket}/collections`;
-  fetch(url, {
-    method: "GET", headers: headers
+  // Load collections; Populate snippet form options.
+  // Load collection records; Populate snippets list.
+  fetch(base_url, {
+    method: "GET",
+    headers: headers
   }).then(function(response) {
     return response.json();
-  }).then(function(x) {
-    let collections = document.forms.new_snippet_form.collection;
-    for(i = 0; i < x.data.length; i++) {
-      let option = document.createElement("option");
-      let readable = document.createTextNode(x.data[i].id);
-      option.value = x.data[i].id;
-      option.appendChild(readable);
-      collections.appendChild(option);
-      // console.log(x.data[i].id);
-    }
+  }).then(function(data) {
+    form.insertBefore(populateOptions(data), form.childNodes[1]);
+    section.appendChild(getRecords(data));
+  }).catch(function(error) {
+    console.log(error.message);
   });
+
+  function getRecords(data) {
+    let articles = document.createElement("section");
+    var collections = data.data;
+    for (var i = 1; i < collections.length; i++) {
+      let url = `${base_url}/${collections[i].id}/records`;
+      let collection = collections[i].id;
+      // console.log(collection);
+      fetch(url, {
+        method: "GET",
+        headers: headers
+      }).then(function(response) {
+        return response.json();
+      }).then(function(records) {
+        // console.log(url);
+        let element = listRecords(collection, records);
+        articles.appendChild(element);
+        // console.log(element);
+        // articles.push(element);
+        console.log(articles);
+      }).catch(function(error) {
+        console.log(error.message);
+      });
+    }
+    return articles;
+  }
+
+  // Template function for collection options list in snippet form.
+  function populateOptions(x) {
+    let element = document.createElement("select");
+    let options = [`<option value=""></option>`];
+    for (i = 0; i < x.data.length; i++) {
+      options[i+1] = `<option value="${x.data[i].id}">${x.data[i].id}</option>`
+    }
+    element.setAttribute("name", "collection")
+    element.innerHTML = options;
+    return element;
+  }
+
+  //Template function for index page records list view.
+  function listRecords(collection, x) {
+    let element = document.createElement("article");
+    let records = [];
+    let snippet, id = "";
+    for (i = 0; i < x.data.length; i++) {
+      if (x.data[i].status == "visible") {
+        id = x.data[i].id;
+        snippet = x.data[i].snippet;
+        records[i] = `<li><code id="${id}">${snippet}</code></li>`
+      }
+    }
+    element.innerHTML = `<ul>${records.join("\n")}</ul>`;
+    element.setAttribute("name", collection);
+    return element;
+  }
+
 
   // Make a snippet object on form submit.
   var form = document.forms.new_snippet_form;
@@ -51,7 +97,7 @@ function main() {
   function makeSnippet() {
     event.preventDefault();
     let collection = form.collection.value ? form.collection.value : form.new_collection.value;
-    let url = `${server}/buckets/${bucket}/collections/${collection}/records`;
+    let url = base_url + "/" + collection + "/records";
     let data = {};
     data.snippet = form.snippet.value;
     data.source = form.source.value;
@@ -64,26 +110,10 @@ function main() {
       return response.json();
     }).then(function(data) {
       console.log(data);
-    }).catch(function() {
-      console.log("Booo");
+    }).catch(function(error) {
+      console.log(error.message);
     });
   };
-
-
-  // Create marker on double-click.
-  // map.on('dblclick', function(event) {
-  //   // POST the record on server.
-  //   var body = JSON.stringify({data: {latlng: event.latlng}});
-  //   fetch(url, {method: "POST", body: body, headers: headers})
-  //     .then(function (response) {
-  //       return response.json();
-  //     })
-  //     .then(function (result) {
-  //       // Add marker to map.
-  //       addMarker(result.data);
-  //     });
-  // });
-
 
 }
 
