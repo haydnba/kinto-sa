@@ -5,7 +5,7 @@
   </head>
   <body>
     <!-- <hr /> -->
-    <header>
+    <header id="something">
       <h1>HBA Snippet Archive</h1>
     </header>
     <main>
@@ -30,16 +30,13 @@
       <section>
         <!-- <p>Copy and paste your code snippet(s) here. You may add fields for a
           longer description, title, tags, source (URI), and collection etc.</p> -->
-        <form name="new_snippet_form">
-          <!-- <fieldset>
-            <legend>New Snippet</legend> -->
-            <p>Collection: <input type="text" id="new_collection" name="new_collection" /></p>
-            <p>Snippet: <input type="text" id="snippet" name="snippet" required /></p>
-            <p>Source: <input type="text" id="source" name="source" /></p>
-            <p>Description: <textarea id="description" name="description"></textarea></p>
-            <p>Visible: <input type="checkbox" id="status" name="status" value="visible" checked/></p>
-            <p><button type="submit">Add Snippet</button></p>
-          <!-- </fieldset> -->
+        <form name="new_snippet_form" autocomplete="off">
+          <p>Collection: <input type="text" id="collection" name="collection" list="optionsList" required />
+          <p>Snippet: <input type="text" id="snippet" name="snippet" required /></p>
+          <p>Source: <input type="text" id="source" name="source" /></p>
+          <p>Description: <textarea id="description" name="description"></textarea></p>
+          <p>Visible: <input type="checkbox" id="status" name="status" value="visible" checked /></p>
+          <p><button type="submit">Add Snippet</button></p>
         <form>
       </section>
       <section id="recent_snippets">
