@@ -144,6 +144,7 @@ function indexMain() {
 function detailMain() {
 
   var query = window.location.search.replace("?", "").split(":");
+  var preview = document.getElementsByTagName("section")[0];
   var form = document.forms[0];
   var update = document.getElementById("update")
   update.addEventListener("click",
@@ -154,15 +155,18 @@ function detailMain() {
 
   (function retrieveRecord(array) {
     let url = `${base_url}/${array[0]}/records/${array[1]}`;
+    article = "";
     let nodes = [];
     fetch(url, {
       method: "GET",
       headers: headers
     }).then(function(response) {
-      return response.text();
+      return response.json();
     }).then(function(record) {
+      article = previewRecord(record);
       nodes = formatRecord(record);
-      console.log(nodes);
+      console.log(article);
+      preview.appendChild(article);
       let i = -1;
       while (++i < nodes.length) {
         let temp = nodes[i];
@@ -178,23 +182,49 @@ function detailMain() {
     });
   }(query));
 
-  function formatRecord(string) {
-    // console.log(string);
-    let text = string.replace(/\"data\":|\"|{|}/g, "");
-    // console.log(text);
-    let array = text.split(",").slice(0, -1);
-    // console.log(array);
-    let nodes = [];
-    let i = -1;
-    while (++i < array.length) {
-      // console.log(array[i]);
-      data = array[i].split(":");
-      // console.log(data);
-      nodes.push(data);
+  function formatRecord(object) {
+    console.log(object);
+    let array = [];
+    for (item in object.data) {
+      console.log(item);
+      array.push([item, object.data[item]])
+      console.log(array);
     }
-    // console.log(nodes);
-    return nodes;
+    return array;
   }
+
+  function previewRecord(object) {
+    let element = document.createElement("article");
+    let nodes = {};
+    for (item in object.data) {
+      console.log(item);
+      nodes[item] = `<p><span id="${item}" name="${item}">${object.data[item]}</span></p>`;
+    }
+    let array = Object.keys(nodes).map(key => nodes[key]);
+    console.log(array);
+    element.innerHTML = array.join("\n");
+    return element;
+  }
+
+
+
+  // function formatRecord(string) {
+  //   // console.log(string);
+  //   let text = string.replace(/\"data\":|\"|{|}/g, "");
+  //   // console.log(text);
+  //   let array = text.split(",").slice(0, -1);
+  //   // console.log(array);
+  //   let nodes = [];
+  //   let i = -1;
+  //   while (++i < array.length) {
+  //     // console.log(array[i]);
+  //     data = array[i].split(":");
+  //     // console.log(data);
+  //     nodes.push(data);
+  //   }
+  //   // console.log(nodes);
+  //   return nodes;
+  // }
 
   function updateRecord(array) {
     let url = `${base_url}/${array[0]}/records/${array[1]}`;
