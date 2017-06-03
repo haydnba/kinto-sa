@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Snippet Archive - Detail View</h1>
+    </header>
+    <main>
+      <section>
+        <p>
+          <button id="edit" name="edit">Edit Record</button>
+          <button id="delete" name="delete">Delete Record</button>
+        </p>
+      </section>
+      <section>
+        <aside>
+          <p>
+            Record ID:
+            <span id="record_id" name="record_id" class="static"></span>
+            Collection:
+            <span id="collection" name="collection" class="static"></span>
+          </p>
+        </aside>
+        <article>
+          <p>Snippet: <span id="snippet" name="snippet" class="static"></span></p>
+          <p>Description: <span id="description" name="description" class="static"></span></p>
+          <p>Source (URL): <span id="source" name="source" class="static"></span></p>
+          <p>Status: <span id="status" name="status" class="static"></span></p>
+          <p style="display:none">Last Modified: <span id="last_modified" name="last_modified"></span></p>
+        </article>
+      </section>
+      <section>
+        <button id="update" name="update">Save Changes</button>
+      </section>
+    </main>
+    <footer></footer>
+    <script type="text/javascript" src="archive.js"></script>
+  </body>
+</html>
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+function detailMain() {
+
+  var query = window.location.search.replace("?", "").split(":");
+  document.getElementById("record_id").innerHTML = query[1];
+  document.getElementById("collection").innerHTML = query[0];
+  var detail = document.getElementsByTagName("article")[0];
+  var edit = document.getElementById("edit");
+  edit.addEventListener("click",
+    function(event) {
+      event.preventDefault();
+      if (edit.innerHTML == "Edit Record") {
+        editRecord("textarea");
+        edit.innerHTML = "Close Editor";
+      } else {
+        editRecord("span");
+        edit.innerHTML = "Edit Record";
+      }
+    }, false);
+  var update = document.getElementById("update");
+  update.addEventListener("click",
+    function(event) {
+      event.preventDefault();
+      updateRecord(query);
+    }, false);
+  var dele = document.getElementById("delete");
+  dele.addEventListener("click",
+    function(event) {
+      event.preventDefault();
+      deleteRecord(query);
+    }, false);
+
+  (function retrieveRecord(array) {
+    let url = `${base_url}/${array[0]}/records/${array[1]}`;
+    let nodes = [];
+    fetch(url, {
+      method: "GET",
+      headers: headers
+    }).then(function(response) {
+      return response.json();
+    }).then(function(record) {
+      nodes = formatRecord(record);
+      let i = -1;
+      while (++i < nodes.length) {
+        let temp = nodes[i];
+        let parent = document.body.querySelector(`#${[temp[0]]}`);
+        if (parent) {
+          let child = document.createTextNode(temp[1]);
+          parent.appendChild(child);
+        }
+      }
+    }).catch(function(error) {
+      console.log(error.message);
+    });
+  }(query));
+
+  function formatRecord(object) {
+    // console.log(object);
+    let array = [];
+    for (item in object.data) {
+      // console.log(item);
+      array.push([item, object.data[item]])
+      // console.log(array);
+    }
+    return array;
+  }
+
+  function editRecord(element) {
+    let parents = detail.querySelectorAll("p");
+    console.log(parents);
+    let i = -1;
+    while (++i < parents.length) {
+      let parent = detail.getElementsByTagName("p")[i];
+      console.log(parent);
+      let previous = parent.firstChild.nextSibling;
+      console.log(previous);
+      let selector = previous.id;
+      console.log(selector);
+      if (selector !== "last_modified") {
+        console.log(selector);
+        let replacement = document.createElement(element);
+        console.log(element);
+        replacement.innerHTML = previous.innerHTML;
+        replacement.setAttribute("id", selector);
+        replacement.setAttribute("class", "editable");
+        previous.parentNode.replaceChild(replacement, previous);
+      }
+    }
+  }
+
+  function updateRecord(array) {
+    editRecord("span");
+    let url = `${base_url}/${array[0]}/records/${array[1]}`;
+    let values = detail.children;
+    console.log(values);
+    let data = {};
+    let i = -1;
+    while (++i < values.length) {
+      let selector = values[i].querySelector("span").id;
+      if (selector !== "last_modified") {
+        console.log(selector);
+        let field = detail.querySelector(`#${selector}`);
+        data[selector] = field.innerHTML;
+      }
+    }
+    console.log(data);
+    console.log(makeBody(data));
+    fetch(url, {
+      method: "PATCH",
+      headers: headers,
+      body: makeBody(data)
+    }).then(function(response) {
+      console.log(response);
+      return response.json();
+    }).catch(function(error) {
+      console.log(error.message);
+    });
+    // location.reload(true);
+  }
+
+  function deleteRecord(array) {
+    let url = `${base_url}/${array[0]}/records/${array[1]}`;
+    let confirm = prompt("Enter snippet ID to delete:");
+    if (confirm == array[1]) {
+      fetch(url, {
+        method: "DELETE",
+        headers: headers,
+      }).then(function(response) {
+        console.log(response);
+        return response.json();
+      }).catch(function(error) {
+        console.log(error.message);
+      });
+    }
+    // location.assign(index.html);
+  }
+
+}

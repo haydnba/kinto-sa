@@ -1,23 +1,23 @@
 
 
-// Mozilla demo server (flushed every day)
+// Mozilla demo server (flushed every day):
 var server = "https://kinto.dev.mozaws.net/v1";
 
-// Simplest credentials ever.
+// Simplest credentials ever:
 var authorization = "Basic " + btoa("token:mysecret");
 
-// Storage URL.
+// Storage URL:
 var bucket = "default";
 var base_url = `${server}/buckets/${bucket}/collections`;
 
-// Resuable HTTP headers.
+// Resuable HTTP headers:
 var headers = {
   "Accept": "application/json",
   "Content-Type": "application/json",
   "Authorization": authorization,
 };
 
-// JSON body maker function:
+// JSON request body function:
 function makeBody(data) {
   return JSON.stringify({data: data});
 }
@@ -137,25 +137,63 @@ function indexMain() {
     }).catch(function(error) {
       console.log(error.message);
     });
+    location.reload(true);
   };
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 function detailMain() {
 
   var query = window.location.search.replace("?", "").split(":");
-  var preview = document.getElementsByTagName("section")[0];
+  document.getElementById("record_id").innerHTML = query[1];
+  document.getElementById("collection").innerHTML = query[0];
+  var preview = document.getElementsByTagName("section")[1];
+  var editor = document.getElementsByTagName("section")[2];
+  var edit = document.getElementById("edit");
+  edit.addEventListener("click",
+    function(event) {
+      event.preventDefault();
+      let style = editor.style.display;
+      console.log(style);
+      let command = edit.innerHTML;
+      console.log(command);
+      if (style == "none") {
+        editor.style.display = "block";
+        preview.style.display = "none";
+        edit.innerHTML = "Close Editor";
+        dele.style.display = "none";
+      } else {
+        editor.style.display = "none";
+        preview.style.display = "block";
+        edit.innerHTML = "Edit Record";
+        dele.style.display = "inline";
+      }
+    }, false);
   var form = document.forms[0];
-  var update = document.getElementById("update")
+  var update = document.getElementById("update");
   update.addEventListener("click",
     function(event) {
       event.preventDefault();
-      updateRecord(query)
+      updateRecord(query);
     }, false);
+  var dele = document.getElementById("delete");
+  dele.addEventListener("click",
+    function(event) {
+      event.preventDefault();
+      deleteRecord(query);
+    }, false);
+
+
+  // Hide record editor form on document load:
+  (function hideEditor() {
+    editor.style.display = "none";
+  }());
 
   (function retrieveRecord(array) {
     let url = `${base_url}/${array[0]}/records/${array[1]}`;
-    article = "";
+    let article = "";
     let nodes = [];
     fetch(url, {
       method: "GET",
@@ -198,33 +236,13 @@ function detailMain() {
     let nodes = {};
     for (item in object.data) {
       console.log(item);
-      nodes[item] = `<p><span id="${item}" name="${item}">${object.data[item]}</span></p>`;
+      nodes[item] = `<p>${item}: <span id="${item}" name="${item}" class="${item}">${object.data[item]}</span></p>`;
     }
     let array = Object.keys(nodes).map(key => nodes[key]);
     console.log(array);
     element.innerHTML = array.join("\n");
     return element;
   }
-
-
-
-  // function formatRecord(string) {
-  //   // console.log(string);
-  //   let text = string.replace(/\"data\":|\"|{|}/g, "");
-  //   // console.log(text);
-  //   let array = text.split(",").slice(0, -1);
-  //   // console.log(array);
-  //   let nodes = [];
-  //   let i = -1;
-  //   while (++i < array.length) {
-  //     // console.log(array[i]);
-  //     data = array[i].split(":");
-  //     // console.log(data);
-  //     nodes.push(data);
-  //   }
-  //   // console.log(nodes);
-  //   return nodes;
-  // }
 
   function updateRecord(array) {
     let url = `${base_url}/${array[0]}/records/${array[1]}`;
@@ -244,56 +262,29 @@ function detailMain() {
     }).catch(function(error) {
       console.log(error.message);
     });
+    location.reload(true);
   }
 
-  // var form = document.forms[0];
-  // form.addEventListener("submit", makeSnippet, false);
-  // function makeSnippet() {
-  //   event.preventDefault();
-  //   let collection = form.collection.value.replace(/ /g, "-");
-  //   console.log(collection);
-  //   let url = `${base_url}/${collection}/records`;
-  //   let data = {};
-  //   data.snippet = form.snippet.value;
-  //   data.source = form.source.value;
-  //   data.description = form.description.value;
-  //   data.status = form.status.value;
-  // };
-
-
-  // function getRecord() {
-  //   let url = `${base_url}/${collection}/records/${record_id}`;
-  //   fetch(url, {
-  //     method: "GET",
-  //     headers: headers
-  //   }).then(function(response) {
-  //     return response.json();
-  //   }).then(function(data) {
-  //     console.log(data);
-  //     form.appendChild(viewRecord(data));
-  //   }).catch(function(error) {
-  //     console.log(error.message);
-  //   });
-  // }
-  //
-  // function viewRecord(x) {
-  //   let element = document.createElement("form");
-  //   let nodes = {};
-  //   for (item in x.data) {
-  //     console.log(item);
-  //     nodes[item] = `<p><textarea id="${item}" name="${item}">${x.data[item]}</textarea></p>`;
-  //   }
-  //   let array = Object.keys(nodes).map(key => nodes[key]);
-  //   console.log(array);
-  //   element.innerHTML = array.join("\n");
-  //   return element;
-  // }
-
-
+  function deleteRecord(array) {
+    let url = `${base_url}/${array[0]}/records/${array[1]}`;
+    let confirm = prompt("Enter snippet ID to delete:");
+    console.log(form.elements["id"]);
+    if (confirm == array[1]) {
+      fetch(url, {
+        method: "DELETE",
+        headers: headers,
+      }).then(function(response) {
+        console.log(response);
+        return response.json();
+      }).catch(function(error) {
+        console.log(error.message);
+      });
+    }
+    // location.assign(index.html);
+  }
 
 
 }
-
 
 function router() {
   let url = window.location.pathname;
@@ -305,6 +296,8 @@ function router() {
     case "detail.html":
     return detailMain();
     break;
+    case "list.html":
+    return listMain();
   }
 }
 

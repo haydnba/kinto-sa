@@ -9,6 +9,22 @@
     </header>
     <main>
       <section>
+        <p>
+          <button id="edit" name="edit">Edit Record</button>
+          <button id="delete" name="delete">Delete Record</button>
+          <button id="query" name="query">Query Record</button>
+          <button id="origin" name="origin">Go to Source (URL)</button>
+        </p>
+      </section>
+      <aside>
+        <p>
+          Record ID:
+          <span id="record_id" name="record_id" class="static"></span>
+          Collection:
+          <span id="collection" name="collection" class="static"></span>
+        </p>
+      </aside>
+      <section>
         <!-- <article id="preview" name="preview">
           <p><span id="snippet" name="snippet"></span></p>
           <p><span id="description" name="description"></span></p>
@@ -18,10 +34,11 @@
       </section>
       <section>
         <form>
-          <p><textarea id="snippet" name="snippet"></textarea></p>
-          <p><textarea id="description" name="description"></textarea></p>
-          <p><textarea id="source" name="source"></textarea></p>
-          <p><textarea id="status" name="status"></textarea></p>
+          <p><input type="hidden" id="id" name="id" /></p>
+          <p>Snippet: <textarea id="snippet" name="snippet"></textarea></p>
+          <p>Description: <textarea id="description" name="description"></textarea></p>
+          <p>Source: <textarea id="source" name="source"></textarea></p>
+          <p>Status: <textarea id="status" name="status"></textarea></p>
         </form>
         <button id="update" name="update">Save Changes</button>
       </section>
